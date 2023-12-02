@@ -1,0 +1,71 @@
+\title{Image Compression with (Compressive) Autoencoders}
+
+\maketitle
+
+An
+\href{https://www.lherranz.org/2022/08/24/neural-image-compression-in-a-nutshell-part-1-main-idea/}{autoencoder}
+consists of two main components: the encoder and the decoder. The
+encoder is a function
+\begin{equation}
+e(\mathbf{X})=\mathbf{Z},
+\end{equation}
+that maps the input data $\mathbf{X}$ to the encoded representation in
+the latent space $\mathbf{Z}$. The decoder is the inverse function
+\begin{equation}
+d(\mathbf{Z})=(\mathbf{X}),
+\end{equation}
+that maps the encoded representation back to the original input
+space. When an autoencoder is implemented using
+\href{https://en.wikipedia.org/wiki/Artificial_neural_network}{ANNs} (with
+parameters $\psi=(\theta,\phi)$, where $\theta$ are the parameters of
+the encoder, and $\phi$ are the parameters of the decoder), and the
+dimension (the number of elements) of the latent space (the output of
+the smaller hidden layer) is smaller than the dimension of the input
+(and output) space, it is impossible (in most of the cases) to decode
+the original $\mathbf{X}$, but only one an approximation
+$\hat{\mathbf{X}}(\psi)$. For this reason, the cost function $J$
+optimized (minimized) in an autoencoder is usually the MSE, defined in
+this case as
+\begin{equation}
+D(\mathbf{X}, \hat{\mathbf{X}})=\frac{1}{N}\sum_{i}^{N}(\mathbf{X}_i-\hat{\mathbf{X}}_i)^2,
+\end{equation}
+where $N$ is the dimension of $\mathbf{X}$ (and $\hat{\mathbf{X}}$),
+and $\mathbf{X}_i$ is the $i$-th element of $\mathbf{X}$.
+
+Therefore, we can formally define an autoencoder as finding the
+optimal autoencoder parameters
+\begin{equation}
+\psi^*=\min_\psi D(\mathbf{X}, \hat{\mathbf{X}}(\psi)).
+\end{equation}
+
+In a compressive autoencoder, we also take into consideration the
+number of bits $R(\mathbf{Z})$ required to represent $\mathbf{Z}$,
+that we want also to minimize. Therefore, in this case the cost
+function is defined as the Lagrangian
+\begin{equation}
+J(\mathbf{X}, \hat{\mathbf{X}}(\psi); \lambda)=D(\mathbf{X}, \hat{\mathbf{X}}(\psi)) + \lambda R(\mathbf{Z}),
+\end{equation}
+where $\lambda$ is a hyper-parameter, and we optimize
+\begin{equation}
+\psi^*=\min_\psi J(\mathbf{X}, \hat{\mathbf{X}}(\psi); \lambda).
+\end{equation}
+
+$\lambda$ determines the trading-off between rate $R$ and distortion
+$D$. If $\lambda$ is big we are priorizing (minimizing) $R$ and
+therefore, we will get a point in the RD-curve with a small bit-rate
+(high MSE). On the contrary, if $\lambda$ is small we are minimizing
+$D$ and therefore, we will be in a point of the RD-curve with a high
+bit-rate (small MSE).
+
+$\mathbf{Z}$ is usually compressed with an entropy encoder (notice
+that this encoder is different to the "latent encoder" $e$). When the
+code-words assigned to the symbols $\mathbf{Z}_i$ depends on the
+probability distribution of $\mathbf{Z}$, such probabilities
+$p_\psi(\mathbf{Z})$ can be also optimized, where now
+$\psi=(\theta,\phi, \nu)$.
+
+Finally, notice that we are not constrained to use the MSE as the
+distortion metric. Other metrics such as the SSIM (more representative
+of how humans perceive the differences between two images) could be
+also used.
+
